@@ -6,26 +6,32 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.View;
+import android.view.ViewStructure;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
 public class MainActivity extends Activity {
 
-    Button btn[] = new Button[26];
+    Button btn[];
     TextView t;
     LinearLayout layout;
     int indexWords = 0;
-
     int gabarito[] = {2, 0, 18, 0};
 
+    //vetor de caracteres
     char words[][] = {
             {'A', 'L', 'T', 'U', 'R', 'A'},
             {'C', 'A', 'S', 'A'},
             {'P', 'H', 'P'}
     };
 
-    int vit = 0;
+    //vetor para armazenar os textviews gerados dinamicamente.
+    ArrayList<TextView> sequence;
+
+    int contVitoria = 0;
 
     int tentativas = 4;
 
@@ -40,10 +46,13 @@ public class MainActivity extends Activity {
 
             //Retirando o layout do textView
             t.setText("_");
-            t.setHeight(70);
+            t.setHeight(78);
             t.setWidth(40);
             t.setTextColor(getResources().getColor(R.color.white));
-            t.setTextSize(25);
+            t.setTextSize(22);
+
+            //Adicionando os elementos t ao vetor
+            sequence.add(t);
 
             layout.addView(t);
         }
@@ -66,12 +75,8 @@ public class MainActivity extends Activity {
 
             if(btn[tag].getText().equals(String.valueOf(words[indexWords][i]))) {
                 cont++;
-                vit++;
-
-
-                t.setText(btn[tag].getText());
-               
-
+                contVitoria++;
+                sequence.get(i).setText(btn[tag].getText());
                 view.setEnabled(false);
 
             } else {
@@ -103,7 +108,7 @@ public class MainActivity extends Activity {
             }
         }
 
-        if(vit == words[indexWords].length) {
+        if(contVitoria == words[indexWords].length) {
             alert("😍 Parabéns", "Você VENCEU!");
             reiniciar();
 
@@ -111,6 +116,8 @@ public class MainActivity extends Activity {
 
 
 };
+
+
 
     //função para Alert
     private void alert(String msg, String titulo){
@@ -147,7 +154,7 @@ public class MainActivity extends Activity {
 
     private void reiniciar() {
         tentativas = 4;
-        vit = 0;
+        contVitoria = 0;
         indexWords = 0;
 
         layout.removeAllViews();
@@ -178,10 +185,13 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
+        //Instanciando objetos
+        sequence = new ArrayList<TextView>();
         layout = new LinearLayout(this);
         t = new TextView(this);
+        btn = new Button[26];
+        //usando métodos
         gerarTexto(indexWords);
         gerarBtn();
 
