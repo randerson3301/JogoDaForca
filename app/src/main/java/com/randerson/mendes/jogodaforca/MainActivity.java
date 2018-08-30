@@ -23,10 +23,13 @@ public class MainActivity extends Activity {
 
     //vetor de caracteres
     char words[][] = {
-            {'A', 'L', 'T', 'U', 'R', 'A'},
+            {'P', 'H', 'P'},
             {'C', 'A', 'S', 'A'},
-            {'P', 'H', 'P'}
+            {'A', 'L', 'T', 'U', 'R', 'A'}
     };
+
+    CharSequence dicas[] = {"Linguagem de Script para Web",
+            "Se você é programador, nem sabe o que é", "Randerson tem demais!"};
 
     //vetor para armazenar os textviews gerados dinamicamente.
     ArrayList<TextView> sequence;
@@ -35,11 +38,18 @@ public class MainActivity extends Activity {
 
     int tentativas = 4;
 
+    //método para mostrar cada dica por vez
+    /*---------AQUI ESTOU EU----------------------------------------
+    public void mostrarDica() {
 
+    }
+*/
     //Função que criará os textsViews automaticamente
     public void gerarTexto(int cont){
 
         layout = findViewById(R.id.MyLayout);
+
+        sequence = new ArrayList<TextView>();
 
         for (int i = 0; i <= words[cont].length - 1; i++) {
             t = new TextView(this);
@@ -140,7 +150,10 @@ public class MainActivity extends Activity {
                     incrementar();
                 }
             });
-        } else {
+        }
+
+
+        else {
             alert.setPositiveButton("Reiniciar", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
@@ -155,7 +168,7 @@ public class MainActivity extends Activity {
     private void reiniciar() {
         tentativas = 4;
         contVitoria = 0;
-        indexWords = 0;
+       // indexWords = 0;
 
         layout.removeAllViews();
 
