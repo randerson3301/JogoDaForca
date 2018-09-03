@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.View;
-import android.view.ViewStructure;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -16,15 +15,14 @@ import java.util.ArrayList;
 public class MainActivity extends Activity {
 
     Button btn[];
-    TextView t;
+    TextView t, txtDica;
     LinearLayout layout;
-    int indexWords = 0;
-    int gabarito[] = {2, 0, 18, 0};
+    int indexWords, contVitoria, tentativas, acertos, erros = 0;
 
-    //vetor de caracteres
+     //vetor de caracteres
     char words[][] = {
             {'P', 'H', 'P'},
-            {'C', 'A', 'S', 'A'},
+            {'V', 'I', 'D', 'A'},
             {'A', 'L', 'T', 'U', 'R', 'A'}
     };
 
@@ -34,16 +32,15 @@ public class MainActivity extends Activity {
     //vetor para armazenar os textviews gerados dinamicamente.
     ArrayList<TextView> sequence;
 
-    int contVitoria = 0;
-
-    int tentativas = 4;
 
     //método para mostrar cada dica por vez
-    /*---------AQUI ESTOU EU----------------------------------------
-    public void mostrarDica() {
+    public void mostrarDica(int cont) {
+        txtDica = new TextView(this);
+        txtDica = findViewById(R.id.txtDica);
 
+        txtDica.setText(dicas[cont]);
     }
-*/
+
     //Função que criará os textsViews automaticamente
     public void gerarTexto(int cont){
 
@@ -72,11 +69,15 @@ public class MainActivity extends Activity {
     public void incrementar() {
         layout.removeAllViews(); //removendo todos os elementos do layout
         indexWords++;
+        tentativas = 4;
+        contVitoria = 0;
+        gerarBtn();
         gerarTexto(indexWords);
+        mostrarDica(indexWords);
+
     }
 
-
-    View.OnClickListener clicou = (View view) -> {
+        View.OnClickListener clicou = (View view) -> {
         int tag = (int) view.getTag();
 
         int cont = 0;
@@ -104,6 +105,7 @@ public class MainActivity extends Activity {
 
             if (tentativas > 0) {
                 view.setBackgroundColor(getResources().getColor(R.color.red));
+                erros++;
                 AlertDialog.Builder alert = new AlertDialog.Builder(this);
                 alert.setMessage("Você tem apenas: " + tentativas + " chances");
                 alert.setTitle("\uD83D\uDE31 Cuidado");
@@ -113,18 +115,13 @@ public class MainActivity extends Activity {
 
             else if(tentativas == 0) {
                 alert("Infelizmente, você perdeu !", "Essa nãããoo");
-                reiniciar();
-
             }
         }
 
         if(contVitoria == words[indexWords].length) {
             alert("😍 Parabéns", "Você VENCEU!");
-            reiniciar();
 
         }
-
-
 };
 
 
@@ -143,34 +140,22 @@ public class MainActivity extends Activity {
             }
         });
 
-        if(tentativas != 0) {
+
             alert.setPositiveButton("Próximo", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     incrementar();
+
                 }
             });
-        }
 
-
-        else {
-            alert.setPositiveButton("Reiniciar", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    reiniciar();
-                }
-            });
-        }
-
-        alert.create().show();
+            alert.create().show();
     }
-
+/*
     private void reiniciar() {
         tentativas = 4;
         contVitoria = 0;
-       // indexWords = 0;
-
-        layout.removeAllViews();
+       layout.removeAllViews();
 
         gerarTexto(indexWords);
 
@@ -178,7 +163,7 @@ public class MainActivity extends Activity {
 
 
     }
-
+*/
     private void gerarBtn(){
 
             int i;
@@ -207,6 +192,10 @@ public class MainActivity extends Activity {
         //usando métodos
         gerarTexto(indexWords);
         gerarBtn();
+
+        mostrarDica(indexWords);
+
+
 
     }
 }
