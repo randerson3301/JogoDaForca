@@ -3,6 +3,7 @@ package com.randerson.mendes.jogodaforca;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.View;
@@ -17,7 +18,11 @@ public class MainActivity extends Activity {
     Button btn[];
     TextView t, txtDica;
     LinearLayout layout;
-    int indexWords, contVitoria, tentativas, acertos, erros = 0;
+     int indexWords, contVitoria, tentativas= 0;
+
+
+     //ambas as variaveis serão utilizadas na tela de fim de jogo
+     static int acertos, erros = 0;
 
      //vetor de caracteres
     char words[][] = {
@@ -35,10 +40,13 @@ public class MainActivity extends Activity {
 
     //método para mostrar cada dica por vez
     public void mostrarDica(int cont) {
-        txtDica = new TextView(this);
-        txtDica = findViewById(R.id.txtDica);
+       if(cont < words.length) {
 
-        txtDica.setText(dicas[cont]);
+           txtDica = new TextView(this);
+           txtDica = findViewById(R.id.txtDica);
+
+           txtDica.setText(dicas[cont]);
+       }
     }
 
     //Função que criará os textsViews automaticamente
@@ -48,20 +56,28 @@ public class MainActivity extends Activity {
 
         sequence = new ArrayList<TextView>();
 
-        for (int i = 0; i <= words[cont].length - 1; i++) {
-            t = new TextView(this);
 
-            //Retirando o layout do textView
-            t.setText("_");
-            t.setHeight(78);
-            t.setWidth(40);
-            t.setTextColor(getResources().getColor(R.color.white));
-            t.setTextSize(22);
+        if(cont < words.length) {
 
-            //Adicionando os elementos t ao vetor
-            sequence.add(t);
+            for (int i = 0; i <= words[cont].length - 1; i++) {
 
-            layout.addView(t);
+
+                t = new TextView(this);
+
+                //Retirando o layout do textView
+                t.setText("_");
+                t.setHeight(78);
+                t.setWidth(40);
+                t.setTextColor(getResources().getColor(R.color.white));
+                t.setTextSize(22);
+
+                //Adicionando os elementos t ao vetor
+                sequence.add(t);
+
+                layout.addView(t);
+
+
+            }
         }
     }
 
@@ -75,6 +91,8 @@ public class MainActivity extends Activity {
         gerarTexto(indexWords);
         mostrarDica(indexWords);
 
+        setResultado(indexWords);
+
     }
 
         View.OnClickListener clicou = (View view) -> {
@@ -82,45 +100,47 @@ public class MainActivity extends Activity {
 
         int cont = 0;
 
-        for (int i = 0; i < words[indexWords].length; i++) {
+        if(indexWords < words.length) {
 
-            if(btn[tag].getText().equals(String.valueOf(words[indexWords][i]))) {
-                cont++;
-                contVitoria++;
-                sequence.get(i).setText(btn[tag].getText());
-                view.setEnabled(false);
+            for (int i = 0; i < words[indexWords].length; i++) {
+
+                if (btn[tag].getText().equals(String.valueOf(words[indexWords][i]))) {
+                    cont++;
+                    contVitoria++;
+                    acertos++;
+                    sequence.get(i).setText(btn[tag].getText());
+                    view.setEnabled(false);
+
+                } else {
+                    view.setEnabled(false);
+
+                }
+
+            }
+
+            if (cont != 0) {
+                view.setBackgroundColor(getResources().getColor(R.color.green));
 
             } else {
-                view.setEnabled(false);
-
-            }
-
-        }
-
-        if(cont != 0) {
-            view.setBackgroundColor(getResources().getColor(R.color.green));
-
-        } else {
-            tentativas--;
-
-            if (tentativas > 0) {
-                view.setBackgroundColor(getResources().getColor(R.color.red));
+                tentativas--;
                 erros++;
-                AlertDialog.Builder alert = new AlertDialog.Builder(this);
-                alert.setMessage("Você tem apenas: " + tentativas + " chances");
-                alert.setTitle("\uD83D\uDE31 Cuidado");
+                if (tentativas > 0) {
+                    view.setBackgroundColor(getResources().getColor(R.color.red));
 
-                alert.create().show();
+                    AlertDialog.Builder alert = new AlertDialog.Builder(this);
+                    alert.setMessage("Você tem apenas: " + tentativas + " chances");
+                    alert.setTitle("\uD83D\uDE31 Cuidado");
+
+                    alert.create().show();
+                } else if (tentativas == 0) {
+                    alert("Infelizmente, você perdeu !", "Essa nãããoo");
+                }
             }
 
-            else if(tentativas == 0) {
-                alert("Infelizmente, você perdeu !", "Essa nãããoo");
+            if (contVitoria == words[indexWords].length) {
+                alert("😍 Parabéns", "Você VENCEU!");
+
             }
-        }
-
-        if(contVitoria == words[indexWords].length) {
-            alert("😍 Parabéns", "Você VENCEU!");
-
         }
 };
 
@@ -149,10 +169,12 @@ public class MainActivity extends Activity {
                 }
             });
 
+            alert.setCancelable(false);
+
             alert.create().show();
     }
-/*
-    private void reiniciar() {
+
+    public  void reiniciar() {
         tentativas = 4;
         contVitoria = 0;
        layout.removeAllViews();
@@ -163,7 +185,7 @@ public class MainActivity extends Activity {
 
 
     }
-*/
+
     private void gerarBtn(){
 
             int i;
@@ -177,23 +199,35 @@ public class MainActivity extends Activity {
                 btn[i].setBackgroundColor(getResources().getColor(R.color.colorPrimaryDark));
                 btn[i].setOnClickListener(clicou);
             }
+    }
+
+    private void setResultado(int cont) {
+        if(cont == words.length) {
+            Intent intent = new Intent(this, FimActivity.class);
+            startActivity(intent);
         }
+    }
 
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
         //Instanciando objetos
         sequence = new ArrayList<TextView>();
         layout = new LinearLayout(this);
         t = new TextView(this);
         btn = new Button[26];
-        //usando métodos
-        gerarTexto(indexWords);
-        gerarBtn();
+        tentativas = 4;
 
+        //usando métodos
+        gerarBtn();
+        gerarTexto(indexWords);
         mostrarDica(indexWords);
+
+
 
 
 
