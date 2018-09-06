@@ -12,41 +12,55 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class MainActivity extends Activity {
 
     Button btn[];
     TextView t, txtDica;
     LinearLayout layout;
-     int indexWords, contVitoria, tentativas= 0;
+    int contVitoria, tentativas, contGeral = 0;
 
-
-     //ambas as variaveis serão utilizadas na tela de fim de jogo
+    //ambas as variaveis serão utilizadas na tela de fim de jogo
      static int acertos, erros = 0;
 
      //vetor de caracteres
     char words[][] = {
             {'P', 'H', 'P'},
             {'V', 'I', 'D', 'A'},
-            {'A', 'L', 'T', 'U', 'R', 'A'}
+            {'A', 'L', 'T', 'U', 'R', 'A'},
+             {'J', 'U', 'P', 'I', 'T', 'E', 'R'},
+             {'L', 'A', 'S', 'A', 'N', 'H', 'A'},
+             {'V', 'E', 'L', 'O', 'C', 'I', 'R', 'A', 'P', 'T', 'O', 'R'},
+             {'P', 'A', 'D', 'A', 'R', 'I', 'A'},
+             {'E', 'S', 'O', 'T', 'E', 'R', 'I', 'C', 'O'},
+             {'C', 'A', 'I', 'X', 'A'},
+             {'E', 'L', 'I', 'P', 'S', 'E'},
+             {'M', 'A', 'D', 'E', 'I', 'R', 'A'},
+             {'A', 'R', 'M', 'A', 'D', 'U', 'R', 'A'},
+             {'A', 'L', 'B', 'A', 'T', 'R', 'O', 'Z'},
+             {'R', 'E', 'L', 'O', 'G', 'I', 'O'}
     };
 
     CharSequence dicas[] = {"Linguagem de Script para Web",
-            "Se você é programador, nem sabe o que é", "Randerson tem demais!"};
+            "Se você é programador, nem sabe o que é", "Se você for baixo, não tem",
+            "Maior Planeta do Sistema Solar", "Prato de origem italiana", "Dinossauro de baixa " +
+            "estatura, mas veloz!", "Local bastante frequentado pela manhã", "Conhecimento para " +
+            "poucos", "Guarda qualquer coisa", "Semelhante ao círculo", "Matéria-prima", "Te protege",
+    "Ave de alta estatura", "Útil para todos!"};
 
+    int indexWords = (int) Math.floor(Math.random() * words.length);
     //vetor para armazenar os textviews gerados dinamicamente.
     ArrayList<TextView> sequence;
 
 
     //método para mostrar cada dica por vez
     public void mostrarDica(int cont) {
-       if(cont < words.length) {
-
            txtDica = new TextView(this);
            txtDica = findViewById(R.id.txtDica);
 
            txtDica.setText(dicas[cont]);
-       }
+
     }
 
     //Função que criará os textsViews automaticamente
@@ -56,10 +70,7 @@ public class MainActivity extends Activity {
 
         sequence = new ArrayList<TextView>();
 
-
-        if(cont < words.length) {
-
-            for (int i = 0; i <= words[cont].length - 1; i++) {
+            for (int i = 0; i < words[cont].length; i++) {
 
 
                 t = new TextView(this);
@@ -78,29 +89,46 @@ public class MainActivity extends Activity {
 
 
             }
-        }
+
     }
 
     //mudar palavra
     public void incrementar() {
         layout.removeAllViews(); //removendo todos os elementos do layout
-        indexWords++;
+        indexWords = (int) Math.floor(Math.random() * words.length);
+        
         tentativas = 4;
         contVitoria = 0;
         gerarBtn();
         gerarTexto(indexWords);
         mostrarDica(indexWords);
 
-        setResultado(indexWords);
+        setResultado(contGeral);
 
     }
+
+/*
+    public void gerarAleatorioSemRepeticao(int index) {
+       ArrayList<Integer> repetidos = new ArrayList<Integer>();
+
+        repetidos.add(index);
+
+        for (int i = 0; i <= repetidos.size(); i++) {
+            if (index == repetidos.get(i)) {
+                index = (int) Math.floor(Math.random() * words.length);
+            }
+        }
+
+
+    }
+*/
 
         View.OnClickListener clicou = (View view) -> {
         int tag = (int) view.getTag();
 
         int cont = 0;
 
-        if(indexWords < words.length) {
+        if(contGeral < words.length) {
 
             for (int i = 0; i < words[indexWords].length; i++) {
 
@@ -134,11 +162,13 @@ public class MainActivity extends Activity {
                     alert.create().show();
                 } else if (tentativas == 0) {
                     alert("Infelizmente, você perdeu !", "Essa nãããoo");
+                    contGeral++;
                 }
             }
 
             if (contVitoria == words[indexWords].length) {
                 alert("😍 Parabéns", "Você VENCEU!");
+                contGeral++;
 
             }
         }
@@ -179,7 +209,7 @@ public class MainActivity extends Activity {
         contVitoria = 0;
        layout.removeAllViews();
 
-        gerarTexto(indexWords);
+        gerarTexto(contGeral);
 
         gerarBtn();
 
@@ -202,7 +232,7 @@ public class MainActivity extends Activity {
     }
 
     private void setResultado(int cont) {
-        if(cont == words.length) {
+        if(cont == words.length / 2) {
             Intent intent = new Intent(this, FimActivity.class);
             startActivity(intent);
         }
@@ -226,11 +256,6 @@ public class MainActivity extends Activity {
         gerarBtn();
         gerarTexto(indexWords);
         mostrarDica(indexWords);
-
-
-
-
-
     }
 }
 

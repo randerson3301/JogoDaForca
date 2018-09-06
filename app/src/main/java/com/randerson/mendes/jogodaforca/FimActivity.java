@@ -32,6 +32,20 @@ public class FimActivity extends Activity {
 
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        evilLaugh.pause();
+        winSong.pause();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        evilLaugh.start();
+        winSong.start();
+    }
+
     private void setResultado() {
         if (acertos > erros) {
             txtResposta.setText("YOU WIN");
