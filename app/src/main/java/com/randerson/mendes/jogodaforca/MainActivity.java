@@ -8,17 +8,22 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 public class MainActivity extends Activity {
 
     Button btn[];
     TextView t, txtDica;
     LinearLayout layout;
+    ImageView imgBoneco;
+    /*
+    * contVitoria representa a quantidade de vezes que o user acertou as letras
+    * tentativas representa o total de chances que o user tem para acertar a palavra
+    * contGeral é um controlador para o total de palavras que serão sorteadas.*/
     int contVitoria, tentativas, contGeral = 0;
 
     //ambas as variaveis serão utilizadas na tela de fim de jogo
@@ -52,6 +57,8 @@ public class MainActivity extends Activity {
     int indexWords = (int) Math.floor(Math.random() * words.length);
     //vetor para armazenar os textviews gerados dinamicamente.
     ArrayList<TextView> sequence;
+    //vetor para armazenar os indices das palavras
+    ArrayList<Integer> repetidos;
 
 
     //método para mostrar cada dica por vez
@@ -93,35 +100,37 @@ public class MainActivity extends Activity {
     }
 
     //mudar palavra
-    public void incrementar() {
+    public void mudarPalavra() {
         layout.removeAllViews(); //removendo todos os elementos do layout
         indexWords = (int) Math.floor(Math.random() * words.length);
-        
-        tentativas = 4;
+        gerarAleatorioSemRepeticao(indexWords);
+        tentativas = 6;
+        //voltando a forca ao seu estado original
+        imgBoneco.setImageDrawable(getResources().getDrawable(R.drawable.forca));
         contVitoria = 0;
         gerarBtn();
         gerarTexto(indexWords);
         mostrarDica(indexWords);
-
+        criarBoneco(tentativas);
         setResultado(contGeral);
 
     }
 
-/*
+    //esse método evita que números aleatórios sejam repetidos
     public void gerarAleatorioSemRepeticao(int index) {
-       ArrayList<Integer> repetidos = new ArrayList<Integer>();
+        repetidos = new ArrayList<Integer>();
 
         repetidos.add(index);
 
-        for (int i = 0; i <= repetidos.size(); i++) {
-            if (index == repetidos.get(i)) {
+        for (int i = 0; i < repetidos.size(); i++) {
+            if (index == repetidos.get(i)) { //se o num já foi sorteado, o sistema sorteia um novo
                 index = (int) Math.floor(Math.random() * words.length);
             }
         }
 
 
     }
-*/
+
 
         View.OnClickListener clicou = (View view) -> {
         int tag = (int) view.getTag();
@@ -132,6 +141,7 @@ public class MainActivity extends Activity {
 
             for (int i = 0; i < words[indexWords].length; i++) {
 
+                //caso a letra seja encontrada no vetor
                 if (btn[tag].getText().equals(String.valueOf(words[indexWords][i]))) {
                     cont++;
                     contVitoria++;
@@ -146,24 +156,19 @@ public class MainActivity extends Activity {
 
             }
 
+            /*o contador será incrementado apenas quando a letra é encontrada
+            * por isso o botão ficará verde
+            * */
             if (cont != 0) {
                 view.setBackgroundColor(getResources().getColor(R.color.green));
 
+            //caso o contador cont não seja incrementado, significa que a letra não foi encontrada.
             } else {
-                tentativas--;
+                tentativas--; //se o usuário errar, o num de tentativas é decrementado
                 erros++;
-                if (tentativas > 0) {
-                    view.setBackgroundColor(getResources().getColor(R.color.red));
+                view.setBackgroundColor(getResources().getColor(R.color.red));
 
-                    AlertDialog.Builder alert = new AlertDialog.Builder(this);
-                    alert.setMessage("Você tem apenas: " + tentativas + " chances");
-                    alert.setTitle("\uD83D\uDE31 Cuidado");
-
-                    alert.create().show();
-                } else if (tentativas == 0) {
-                    alert("Infelizmente, você perdeu !", "Essa nãããoo");
-                    contGeral++;
-                }
+                criarBoneco(tentativas);
             }
 
             if (contVitoria == words[indexWords].length) {
@@ -173,7 +178,30 @@ public class MainActivity extends Activity {
             }
         }
 };
+    //método para controlar o boneco
+    /*
+    * Cada vez que o user errar a letra, uma parte do corpo aparecerá*/
+    private void criarBoneco(int cont) {
+        imgBoneco = findViewById(R.id.imgBoneco);
 
+        switch (cont) {
+            case 5: imgBoneco.setImageDrawable(getResources().getDrawable(R.drawable.head));
+                    break;
+            case 4: imgBoneco.setImageDrawable(getResources().getDrawable(R.drawable.body));
+                    break;
+            case 3: imgBoneco.setImageDrawable(getResources().getDrawable(R.drawable.right_arm));
+                    break;
+            case 2: imgBoneco.setImageDrawable(getResources().getDrawable(R.drawable.left_arm));
+                    break;
+            case 1: imgBoneco.setImageDrawable(getResources().getDrawable(R.drawable.right_leg));
+                    break;
+            case 0: imgBoneco.setImageDrawable(getResources().getDrawable(R.drawable.lose));
+                contGeral++;
+                alert("Infelizmente, você perdeu !", "Essa nãããoo");
+                break;
+
+        }
+    }
 
 
     //função para Alert
@@ -194,7 +222,7 @@ public class MainActivity extends Activity {
             alert.setPositiveButton("Próximo", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    incrementar();
+                    mudarPalavra();
 
                 }
             });
@@ -216,6 +244,8 @@ public class MainActivity extends Activity {
 
     }
 
+    // método para gerenciar a mecânica dos botões
+
     private void gerarBtn(){
 
             int i;
@@ -231,8 +261,10 @@ public class MainActivity extends Activity {
             }
     }
 
+    /*método para enviar o usuário a última activity, onde saberá se venceu o jogo,
+    * a quantidade de letras que acertou e que errou, e a opção de reiniciar o jogo*/
     private void setResultado(int cont) {
-        if(cont == words.length / 2) {
+        if(cont == 4) {
             Intent intent = new Intent(this, FimActivity.class);
             startActivity(intent);
         }
@@ -244,13 +276,14 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-        //Instanciando objetos
+         //Instanciando objetos
         sequence = new ArrayList<TextView>();
+        repetidos = new ArrayList<Integer>();
         layout = new LinearLayout(this);
+        imgBoneco = new ImageView(this);
         t = new TextView(this);
         btn = new Button[26];
-        tentativas = 4;
+        tentativas = 6;
 
         //usando métodos
         gerarBtn();
